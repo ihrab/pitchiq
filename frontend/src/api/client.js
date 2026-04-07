@@ -1,7 +1,9 @@
 import axios from 'axios'
 
+const baseURL = import.meta.env.VITE_API_BASE_URL || 'https://pitchiq-backend-xsyd.onrender.com'
+
 const client = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000',
+  baseURL,
   headers: { 'Content-Type': 'application/json' },
 })
 
