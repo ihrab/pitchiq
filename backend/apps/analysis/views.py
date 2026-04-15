@@ -65,16 +65,6 @@ class QAChatView(APIView):
         if not content:
             return Response({'error': 'Message content required.'}, status=400)
 
-        # Check free plan Q&A limit
-        if request.user.plan == 'free':
-            existing_count = QAMessage.objects(analysis=analysis).count()
-            if existing_count >= 5:
-                return Response({
-                    'error': 'upgrade_required',
-                    'feature': 'qa_messages',
-                    'message': 'Free plan is limited to 5 Q&A messages per analysis.'
-                }, status=403)
-
         user_msg = QAMessage(analysis=analysis, role='user', content=content)
         user_msg.save()
 
@@ -97,9 +87,6 @@ class QAChatView(APIView):
 
 class ExportPDFView(APIView):
     def get(self, request, analysis_id):
-        if request.user.plan == 'free':
-            return Response({'error': 'upgrade_required', 'feature': 'pdf_export'}, status=403)
-
         analysis = Analysis.objects(pk=analysis_id).first()
         if not analysis:
             return Response({'error': 'Analysis not found.'}, status=404)
@@ -125,9 +112,6 @@ class ExportPDFView(APIView):
 
 class ExportPPTXView(APIView):
     def get(self, request, analysis_id):
-        if request.user.plan == 'free':
-            return Response({'error': 'upgrade_required', 'feature': 'pitch_deck'}, status=403)
-
         analysis = Analysis.objects(pk=analysis_id).first()
         if not analysis:
             return Response({'error': 'Analysis not found.'}, status=404)

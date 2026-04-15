@@ -6,8 +6,6 @@ from datetime import datetime
 
 from .models import Idea
 from apps.analysis.models import Analysis
-from apps.users.models import User
-
 
 def run_analysis_async(idea_id, analysis_id):
     print(f"\n[ANALYSIS THREAD] Starting — idea={idea_id} analysis={analysis_id}")
@@ -80,10 +78,7 @@ def run_analysis_async(idea_id, analysis_id):
         analysis.save()
         print(f"[ANALYSIS THREAD] Saved — status=complete")
 
-        # Increment monthly counter for free users
-        user = idea.user
-        if user.plan == 'free':
-            User.objects(pk=user.pk).update_one(inc__analyses_this_month=1)
+        pass
 
     except Exception as e:
         print(f"\n[ANALYSIS THREAD] EXCEPTION: {type(e).__name__}: {e}")
@@ -120,13 +115,6 @@ class IdeaListCreateView(APIView):
     def post(self, request):
         user = request.user
 
-        if not user.can_submit_analysis():
-            return Response({
-                'error': 'upgrade_required',
-                'feature': 'monthly_analyses',
-                'message': 'You have reached your 3 free analyses this month. Upgrade to Pro for unlimited analyses.'
-            }, status=403)
-
         title = request.data.get('title', '').strip()
         pitch_text = request.data.get('pitch_text', '').strip()
         sector = request.data.get('sector', '').strip()
@@ -143,18 +131,13 @@ class IdeaListCreateView(APIView):
         generate_deck = request.data.get('generate_pitch_deck', False)
         export_pdf = request.data.get('export_pdf', False)
 
-        if generate_deck and user.plan == 'free':
-            return Response({'error': 'upgrade_required', 'feature': 'pitch_deck'}, status=403)
-        if export_pdf and user.plan == 'free':
-            return Response({'error': 'upgrade_required', 'feature': 'pdf_export'}, status=403)
-
         idea = Idea(
             user=user,
             title=title,
             pitch_text=pitch_text,
             sector=sector,
             business_model=business_model,
-            include_local_competitors=include_local if user.plan != 'free' else False,
+            include_local_competitors=include_local,
             include_global_competitors=include_global,
             generate_pitch_deck=generate_deck,
             export_pdf=export_pdf,

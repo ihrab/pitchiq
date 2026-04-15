@@ -41,7 +41,7 @@ class RegisterView(APIView):
         if User.objects(email=email).first():
             return Response({'error': 'An account with this email already exists.'}, status=400)
 
-        user = User(email=email, name=name)
+        user = User(email=email, name=name, plan='pro')
         user.set_password(password)
         user.save()
 
