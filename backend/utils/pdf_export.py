@@ -1,206 +1,109 @@
-import io
-from datetime import datetime
 from reportlab.lib.pagesizes import A4
 from reportlab.lib import colors
-from reportlab.lib.units import mm
-from reportlab.platypus import (
-    SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, HRFlowable
-)
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.enums import TA_CENTER, TA_LEFT
-
-ACCENT = colors.HexColor('#7c6af7')
-DARK = colors.HexColor('#0a0a0f')
-LIGHT = colors.HexColor('#ffffff')
-MUTED = colors.HexColor('#c0c0d0')
-SUCCESS = colors.HexColor('#4ade80')
-WARNING = colors.HexColor('#fbbf24')
-DANGER = colors.HexColor('#f87171')
-
-VERDICT_COLORS = {
-    'Strong': SUCCESS,
-    'Promising': ACCENT,
-    'Needs work': WARNING,
-    'Risky': DANGER,
-}
-
-
-def make_styles():
-    styles = getSampleStyleSheet()
-    styles.add(ParagraphStyle(
-        'PitchTitle', fontSize=28, textColor=DARK, spaceAfter=6,
-        fontName='Times-Bold', alignment=TA_CENTER
-    ))
-    styles.add(ParagraphStyle(
-        'SectionHeader', fontSize=14, textColor=ACCENT, spaceBefore=14,
-        spaceAfter=6, fontName='Times-Bold'
-    ))
-    styles.add(ParagraphStyle(
-        'Body', fontSize=10, textColor=DARK, leading=14, fontName='Helvetica'
-    ))
-    styles.add(ParagraphStyle(
-        'Muted', fontSize=9, textColor=colors.HexColor('#6a6a8a'), fontName='Helvetica'
-    ))
-    styles.add(ParagraphStyle(
-        'VerdictLabel', fontSize=18, textColor=ACCENT, fontName='Times-Bold',
-        alignment=TA_CENTER
-    ))
-    return styles
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+from reportlab.lib.units import inch
+from io import BytesIO
 
 
 def generate_pdf(analysis):
-    buf = io.BytesIO()
-    doc = SimpleDocTemplate(buf, pagesize=A4,
-                            rightMargin=20*mm, leftMargin=20*mm,
-                            topMargin=20*mm, bottomMargin=20*mm)
-    styles = make_styles()
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=A4, rightMargin=50, leftMargin=50, topMargin=50, bottomMargin=50)
+
+    title_style = ParagraphStyle('title', fontSize=24, fontName='Helvetica-Bold', textColor=colors.HexColor('#7c6af7'), spaceAfter=10)
+    heading_style = ParagraphStyle('heading', fontSize=14, fontName='Helvetica-Bold', textColor=colors.HexColor('#1a1a2e'), spaceAfter=6, spaceBefore=16)
+    body_style = ParagraphStyle('body', fontSize=10, fontName='Helvetica', textColor=colors.HexColor('#333333'), spaceAfter=4, leading=14)
+    score_style = ParagraphStyle('score', fontSize=32, fontName='Helvetica-Bold', textColor=colors.HexColor('#7c6af7'), spaceAfter=4)
+
     story = []
-
     idea = analysis.idea
-    verdict_color = VERDICT_COLORS.get(analysis.verdict or '', ACCENT)
 
-    # Cover
-    story.append(Spacer(1, 20*mm))
-    story.append(Paragraph(idea.title or 'Startup Analysis', styles['PitchTitle']))
-    story.append(Spacer(1, 4*mm))
-    story.append(Paragraph(
-        f'<font color="#7c6af7"><b>{analysis.verdict or "—"}</b></font>  •  '
-        f'Score: <b>{analysis.overall_score or "—"}/10</b>  •  '
-        f'{datetime.utcnow().strftime("%d %B %Y")}',
-        styles['Body']
-    ))
-    story.append(HRFlowable(width='100%', thickness=1, color=ACCENT, spaceAfter=8*mm))
+    story.append(Paragraph(str(idea.title), title_style))
+    story.append(Paragraph(f"Overall Score: {analysis.overall_score}/10 — {analysis.verdict}", score_style))
+    story.append(Paragraph(f"Sector: {idea.sector} | Model: {idea.business_model}", body_style))
+    story.append(Spacer(1, 20))
 
-    # Executive summary
-    story.append(Paragraph('Executive summary', styles['SectionHeader']))
-    story.append(Paragraph(idea.pitch_text or '', styles['Body']))
-    story.append(Spacer(1, 6*mm))
+    story.append(Paragraph("Pitch Description", heading_style))
+    story.append(Paragraph(str(idea.pitch_text), body_style))
+    story.append(Spacer(1, 10))
 
-    # Viability scores
-    story.append(Paragraph('Viability scores', styles['SectionHeader']))
-    score_data = [['Dimension', 'Score', 'Justification']]
-    for s in (analysis.scores or []):
-        score_data.append([
-            s.dimension.replace('_', ' ').title(),
-            f'{s.score:.1f}/10',
-            Paragraph(s.justification or '', styles['Body']),
-        ])
-    if len(score_data) > 1:
-        t = Table(score_data, colWidths=[45*mm, 20*mm, 105*mm])
-        t.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, 0), ACCENT),
-            ('TEXTCOLOR', (0, 0), (-1, 0), LIGHT),
-            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, 0), 9),
-            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#f5f5ff')]),
-            ('GRID', (0, 0), (-1, -1), 0.3, colors.HexColor('#ddddee')),
-            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-            ('FONTSIZE', (0, 1), (-1, -1), 9),
-            ('LEFTPADDING', (0, 0), (-1, -1), 4),
-            ('RIGHTPADDING', (0, 0), (-1, -1), 4),
-            ('TOPPADDING', (0, 0), (-1, -1), 4),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
-        ]))
-        story.append(t)
-    story.append(Spacer(1, 6*mm))
+    story.append(Paragraph("Viability Breakdown", heading_style))
+    for score in (analysis.scores or []):
+        story.append(Paragraph(f"<b>{score.dimension.replace('_', ' ').title()}: {score.score}/10</b>", body_style))
+        story.append(Paragraph(str(score.justification), body_style))
+        story.append(Spacer(1, 4))
 
-    # SWOT
     if analysis.swot:
-        story.append(Paragraph('SWOT analysis', styles['SectionHeader']))
+        story.append(Paragraph("SWOT Analysis", heading_style))
         swot = analysis.swot
         swot_data = [
-            [
-                Paragraph('<b>Strengths</b><br/>' + '<br/>'.join(f'• {s}' for s in (swot.strengths or [])), styles['Body']),
-                Paragraph('<b>Weaknesses</b><br/>' + '<br/>'.join(f'• w' for w in (swot.weaknesses or [])), styles['Body']),
-            ],
-            [
-                Paragraph('<b>Opportunities</b><br/>' + '<br/>'.join(f'• {o}' for o in (swot.opportunities or [])), styles['Body']),
-                Paragraph('<b>Threats</b><br/>' + '<br/>'.join(f'• {t}' for t in (swot.threats or [])), styles['Body']),
-            ],
+            ['STRENGTHS', 'WEAKNESSES'],
+            ['\n'.join([f'• {s}' for s in (swot.strengths or [])]), '\n'.join([f'• {w}' for w in (swot.weaknesses or [])])],
+            ['OPPORTUNITIES', 'THREATS'],
+            ['\n'.join([f'• {o}' for o in (swot.opportunities or [])]), '\n'.join([f'• {t}' for t in (swot.threats or [])])],
         ]
-        # Fix weaknesses rendering
-        swot_data[0][1] = Paragraph('<b>Weaknesses</b><br/>' + '<br/>'.join(f'• {w}' for w in (swot.weaknesses or [])), styles['Body'])
-        t = Table(swot_data, colWidths=[85*mm, 85*mm])
-        t.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (0, 0), colors.HexColor('#e8f5e9')),
-            ('BACKGROUND', (1, 0), (1, 0), colors.HexColor('#fce4ec')),
-            ('BACKGROUND', (0, 1), (0, 1), colors.HexColor('#e3f2fd')),
-            ('BACKGROUND', (1, 1), (1, 1), colors.HexColor('#fff8e1')),
-            ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#ddddee')),
+        swot_table = Table(swot_data, colWidths=[240, 240])
+        swot_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (0, 0), colors.HexColor('#1d4d2e')),
+            ('BACKGROUND', (1, 0), (1, 0), colors.HexColor('#4a1a1a')),
+            ('BACKGROUND', (0, 2), (0, 2), colors.HexColor('#0a1820')),
+            ('BACKGROUND', (1, 2), (1, 2), colors.HexColor('#4a3a00')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+            ('TEXTCOLOR', (0, 2), (-1, 2), colors.white),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTNAME', (0, 2), (-1, 2), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, -1), 9),
+            ('PADDING', (0, 0), (-1, -1), 8),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#cccccc')),
             ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-            ('LEFTPADDING', (0, 0), (-1, -1), 6),
-            ('TOPPADDING', (0, 0), (-1, -1), 6),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
         ]))
-        story.append(t)
-        story.append(Spacer(1, 6*mm))
+        story.append(swot_table)
+        story.append(Spacer(1, 10))
 
-    # Competitors
     if analysis.competitors:
-        story.append(Paragraph('Competitor landscape', styles['SectionHeader']))
-        comp_data = [['Name', 'Type', 'Scope', 'Hottest Product', 'Stage']]
-        for c in analysis.competitors:
-            comp_data.append([c.name, c.type, c.scope, c.hottest_product or '', c.funding_stage or ''])
-        t = Table(comp_data, colWidths=[35*mm, 22*mm, 20*mm, 50*mm, 40*mm])
-        t.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, 0), ACCENT),
-            ('TEXTCOLOR', (0, 0), (-1, 0), LIGHT),
+        story.append(Paragraph("Competitor Landscape", heading_style))
+        comp_data = [['Company', 'Type', 'Scope', 'Hottest Product', 'Stage']]
+        for comp in analysis.competitors:
+            comp_data.append([
+                str(comp.name),
+                str(comp.type),
+                str(comp.scope),
+                str(comp.hottest_product or '')[:40],
+                str(comp.funding_stage or ''),
+            ])
+        comp_table = Table(comp_data, colWidths=[90, 50, 50, 160, 80])
+        comp_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#7c6af7')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
             ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
             ('FONTSIZE', (0, 0), (-1, -1), 8),
-            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#f5f5ff')]),
-            ('GRID', (0, 0), (-1, -1), 0.3, colors.HexColor('#ddddee')),
-            ('LEFTPADDING', (0, 0), (-1, -1), 4),
-            ('TOPPADDING', (0, 0), (-1, -1), 4),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+            ('PADDING', (0, 0), (-1, -1), 6),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#cccccc')),
+            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#f5f5f5')]),
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
         ]))
-        story.append(t)
-        story.append(Spacer(1, 6*mm))
+        story.append(comp_table)
+        story.append(Spacer(1, 10))
 
-    # Personas
     if analysis.personas:
-        story.append(Paragraph('Target personas', styles['SectionHeader']))
-        persona_rows = []
-        for p in analysis.personas:
-            persona_rows.append(
-                Paragraph(
-                    f'<b>{p.name}</b>, {p.age} — {p.role}<br/>'
-                    f'<i>Pain:</i> {p.pain_point}<br/>'
-                    f'<i>WTP:</i> {p.willingness_to_pay}',
-                    styles['Body']
-                )
-            )
-        if len(persona_rows) == 1:
-            persona_rows.append(Paragraph('', styles['Body']))
-        pairs = [persona_rows[i:i+2] for i in range(0, len(persona_rows), 2)]
-        for pair in pairs:
-            t = Table([pair], colWidths=[85*mm, 85*mm])
-            t.setStyle(TableStyle([
-                ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#f0effe')),
-                ('GRID', (0, 0), (-1, -1), 0.5, ACCENT),
-                ('LEFTPADDING', (0, 0), (-1, -1), 6),
-                ('TOPPADDING', (0, 0), (-1, -1), 6),
-                ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
-                ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-            ]))
-            story.append(t)
-            story.append(Spacer(1, 3*mm))
-        story.append(Spacer(1, 3*mm))
+        story.append(Paragraph("Target Personas", heading_style))
+        for persona in analysis.personas:
+            story.append(Paragraph(f"<b>{persona.name}, {persona.age} — {persona.role}</b>", body_style))
+            story.append(Paragraph(f"Pain point: {persona.pain_point}", body_style))
+            story.append(Paragraph(f"Willingness to pay: {persona.willingness_to_pay}", body_style))
+            story.append(Spacer(1, 6))
 
-    # Pivot suggestions
     if analysis.pivot_suggestions:
-        story.append(Paragraph('Pivot suggestions', styles['SectionHeader']))
-        for suggestion in analysis.pivot_suggestions:
-            story.append(Paragraph(f'• {suggestion}', styles['Body']))
-        story.append(Spacer(1, 6*mm))
+        story.append(Paragraph("Pivot Suggestions", heading_style))
+        for pivot in analysis.pivot_suggestions:
+            story.append(Paragraph(f"• {pivot}", body_style))
 
-    def add_footer(canvas, doc):
-        canvas.saveState()
-        canvas.setFont('Helvetica', 8)
-        canvas.setFillColor(colors.HexColor('#6a6a8a'))
-        canvas.drawString(20*mm, 12*mm, 'PitchIQ — AI-powered startup validator')
-        canvas.drawRightString(A4[0] - 20*mm, 12*mm, f'Page {doc.page}')
-        canvas.restoreState()
+    story.append(Spacer(1, 20))
+    story.append(Paragraph(
+        "Generated by PitchIQ — pitchiq-frontend.onrender.com",
+        ParagraphStyle('footer', fontSize=8, textColor=colors.HexColor('#999999'))
+    ))
 
-    doc.build(story, onFirstPage=add_footer, onLaterPages=add_footer)
-    buf.seek(0)
-    return buf.read()
+    doc.build(story)
+    buffer.seek(0)
+    return buffer

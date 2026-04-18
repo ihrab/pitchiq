@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { getAnalysis, getChatMessages, exportPDF, exportPPTX } from '../api/analysis'
+import { getAnalysis, getChatMessages } from '../api/analysis'
 import { useAnalysisPolling } from '../hooks/useAnalysisPolling'
 import { useAuth } from '../context/AuthContext'
 import Sidebar from '../components/Sidebar'
@@ -52,19 +52,41 @@ export default function AnalysisPage() {
     setMessages((prev) => [...prev, userMsg, assistantMsg])
   }
 
-  const handleExport = async (type) => {
+  const handleExportPDF = async () => {
     try {
-      const fn = type === 'pdf' ? exportPDF : exportPPTX
-      const res = await fn(id)
-      const url = res.data.url
-      if (url) window.open(url, '_blank')
+      const response = await fetch(
+        `https://pitchiq-backend-xsyd.onrender.com/api/analysis/${id}/pdf/`,
+        { headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` } }
+      )
+      if (!response.ok) throw new Error('Export failed')
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = 'pitchiq-report.pdf'
+      a.click()
+      window.URL.revokeObjectURL(url)
     } catch (err) {
-      const e = err.response?.data
-      if (e?.error === 'upgrade_required') {
-        navigate('/pricing')
-      } else {
-        alert(e?.error || 'Export failed.')
-      }
+      alert('PDF export failed. Please try again.')
+    }
+  }
+
+  const handleExportPPTX = async () => {
+    try {
+      const response = await fetch(
+        `https://pitchiq-backend-xsyd.onrender.com/api/analysis/${id}/pptx/`,
+        { headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` } }
+      )
+      if (!response.ok) throw new Error('Export failed')
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = 'pitchiq-deck.pptx'
+      a.click()
+      window.URL.revokeObjectURL(url)
+    } catch (err) {
+      alert('Pitch deck export failed. Please try again.')
     }
   }
 
@@ -123,7 +145,7 @@ export default function AnalysisPage() {
           </div>
           <div className="flex gap-2">
             <button
-              onClick={() => handleExport('pdf')}
+              onClick={handleExportPDF}
               className="px-4 py-2 rounded-chip text-sm border border-border-input text-text-muted hover:text-text-primary hover:border-text-muted transition-colors flex items-center gap-1.5"
             >
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -132,7 +154,7 @@ export default function AnalysisPage() {
               Export PDF
             </button>
             <button
-              onClick={() => handleExport('pptx')}
+              onClick={handleExportPPTX}
               className="px-4 py-2 rounded-chip text-sm border border-border-input text-text-muted hover:text-text-primary hover:border-text-muted transition-colors flex items-center gap-1.5"
             >
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

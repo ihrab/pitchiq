@@ -60,6 +60,8 @@ export default function SubmitPage() {
   const [loading, setLoading] = useState(false)
   const { user } = useAuth()
   const navigate = useNavigate()
+  const isPro = user?.plan === 'pro' || user?.plan === 'enterprise'
+
   const handleSubmit = async () => {
     setError(null)
     setLoading(true)
@@ -216,6 +218,8 @@ export default function SubmitPage() {
                 label="Include local competitors (UK-based)"
                 checked={localComp}
                 onChange={setLocalComp}
+                disabled={!isPro}
+                proLabel={!isPro}
               />
               <Toggle
                 label="Include global competitors"
@@ -226,11 +230,15 @@ export default function SubmitPage() {
                 label="Export as PDF report"
                 checked={pdfExport}
                 onChange={setPdfExport}
+                disabled={!isPro}
+                proLabel={!isPro}
               />
               <Toggle
                 label="Generate pitch deck"
                 checked={deckExport}
                 onChange={setDeckExport}
+                disabled={!isPro}
+                proLabel={!isPro}
               />
             </div>
 

@@ -9,7 +9,7 @@ class User(me.Document):
     name = me.StringField(max_length=200)
     password_hash = me.StringField()
     google_id = me.StringField()
-    plan = me.StringField(choices=['free', 'pro', 'enterprise'], default='pro')
+    plan = me.StringField(choices=['free', 'pro', 'enterprise'], default='free')
     analyses_this_month = me.IntField(default=0)
     stripe_customer_id = me.StringField()
     created_at = me.DateTimeField(default=datetime.utcnow)

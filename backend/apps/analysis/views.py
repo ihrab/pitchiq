@@ -1,4 +1,6 @@
 import threading
+import traceback
+from django.http import HttpResponse
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -65,6 +67,16 @@ class QAChatView(APIView):
         if not content:
             return Response({'error': 'Message content required.'}, status=400)
 
+        # Check free plan Q&A limit
+        if request.user.plan == 'free':
+            existing_count = QAMessage.objects(analysis=analysis).count()
+            if existing_count >= 5:
+                return Response({
+                    'error': 'upgrade_required',
+                    'feature': 'qa_messages',
+                    'message': 'Free plan is limited to 5 Q&A messages per analysis.'
+                }, status=403)
+
         user_msg = QAMessage(analysis=analysis, role='user', content=content)
         user_msg.save()
 
@@ -87,50 +99,48 @@ class QAChatView(APIView):
 
 class ExportPDFView(APIView):
     def get(self, request, analysis_id):
-        analysis = Analysis.objects(pk=analysis_id).first()
-        if not analysis:
-            return Response({'error': 'Analysis not found.'}, status=404)
-        if str(analysis.idea.user.pk) != str(request.user.pk):
-            return Response({'error': 'Forbidden.'}, status=403)
-        if analysis.status != 'complete':
-            return Response({'error': 'Analysis not complete.'}, status=400)
-
-        if analysis.pdf_url:
-            return Response({'url': analysis.pdf_url})
-
         try:
+            analysis = Analysis.objects(pk=analysis_id).first()
+            if not analysis:
+                return Response({'error': 'Analysis not found.'}, status=404)
+            if str(analysis.idea.user.pk) != str(request.user.pk):
+                return Response({'error': 'Forbidden.'}, status=403)
+            if analysis.status != 'complete':
+                return Response({'error': 'Analysis not complete.'}, status=400)
+
             from utils.pdf_export import generate_pdf
-            from utils.cloudinary_upload import upload_file
-            pdf_bytes = generate_pdf(analysis)
-            url = upload_file(pdf_bytes, f'pitchiq_{analysis_id}.pdf', 'application/pdf')
-            analysis.pdf_url = url
-            analysis.save()
-            return Response({'url': url})
+            buffer = generate_pdf(analysis)
+            filename = f"pitchiq-{analysis.idea.title}-report.pdf".replace(' ', '-')
+            response = HttpResponse(buffer.read(), content_type='application/pdf')
+            response['Content-Disposition'] = f'attachment; filename="{filename}"'
+            response['Access-Control-Expose-Headers'] = 'Content-Disposition'
+            return response
         except Exception as e:
+            traceback.print_exc()
             return Response({'error': str(e)}, status=500)
 
 
 class ExportPPTXView(APIView):
     def get(self, request, analysis_id):
-        analysis = Analysis.objects(pk=analysis_id).first()
-        if not analysis:
-            return Response({'error': 'Analysis not found.'}, status=404)
-        if str(analysis.idea.user.pk) != str(request.user.pk):
-            return Response({'error': 'Forbidden.'}, status=403)
-        if analysis.status != 'complete':
-            return Response({'error': 'Analysis not complete.'}, status=400)
-
-        if analysis.pptx_url:
-            return Response({'url': analysis.pptx_url})
-
         try:
+            analysis = Analysis.objects(pk=analysis_id).first()
+            if not analysis:
+                return Response({'error': 'Analysis not found.'}, status=404)
+            if str(analysis.idea.user.pk) != str(request.user.pk):
+                return Response({'error': 'Forbidden.'}, status=403)
+            if analysis.status != 'complete':
+                return Response({'error': 'Analysis not complete.'}, status=400)
+
             from utils.pptx_export import generate_pptx
-            from utils.cloudinary_upload import upload_file
-            pptx_bytes = generate_pptx(analysis)
-            url = upload_file(pptx_bytes, f'pitchiq_{analysis_id}.pptx',
-                              'application/vnd.openxmlformats-officedocument.presentationml.presentation')
-            analysis.pptx_url = url
-            analysis.save()
-            return Response({'url': url})
+            buffer = generate_pptx(analysis)
+            filename = f"pitchiq-{analysis.idea.title}-deck.pptx".replace(' ', '-')
+            response = HttpResponse(
+                buffer.read(),
+                content_type='application/vnd.openxmlformats-officedocument.presentationml.presentation'
+            )
+            response['Content-Disposition'] = f'attachment; filename="{filename}"'
+            response['Access-Control-Expose-Headers'] = 'Content-Disposition'
+            return response
         except Exception as e:
+            traceback.print_exc()
             return Response({'error': str(e)}, status=500)
