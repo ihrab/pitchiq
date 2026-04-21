@@ -8,10 +8,9 @@ const DIMENSION_LABELS = {
 }
 
 function scoreColor(score) {
-  if (score >= 7.5) return '#4ade80'
-  if (score >= 5) return '#7c6af7'
-  if (score >= 3) return '#fbbf24'
-  return '#f87171'
+  if (score >= 7) return '#c8f135'
+  if (score >= 4) return '#f59e0b'
+  return '#ef4444'
 }
 
 export default function ScoreBar({ dimension, score, justification }) {
@@ -21,17 +20,17 @@ export default function ScoreBar({ dimension, score, justification }) {
   return (
     <div className="space-y-1.5">
       <div className="flex items-center justify-between text-sm">
-        <span className="text-text-body">{DIMENSION_LABELS[dimension] || dimension}</span>
-        <span className="font-medium" style={{ color }}>{score?.toFixed(1)}</span>
+        <span className="text-[#444444] font-medium">{DIMENSION_LABELS[dimension] || dimension}</span>
+        <span className="font-bold text-sm" style={{ color }}>{score?.toFixed(1)}</span>
       </div>
-      <div className="h-1.5 bg-border-subtle rounded-full overflow-hidden">
+      <div className="h-2 bg-[#f0f0f0] rounded-full overflow-hidden">
         <div
           className="h-full rounded-full transition-all duration-700"
           style={{ width: `${pct}%`, backgroundColor: color }}
         />
       </div>
       {justification && (
-        <p className="text-xs text-text-muted leading-relaxed">{justification}</p>
+        <p className="text-xs text-[#888888] leading-relaxed">{justification}</p>
       )}
     </div>
   )

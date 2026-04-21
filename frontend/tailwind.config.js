@@ -5,25 +5,33 @@ export default {
     extend: {
       colors: {
         bg: {
-          primary: '#0a0a0f',
-          sidebar: '#0d0d18',
-          card: '#0f0f1a',
+          primary: '#f5f5f0',
+          sidebar: '#111111',
+          card: '#ffffff',
         },
-        accent: '#7c6af7',
-        'accent-tint': '#1e1a3a',
+        accent: '#c8f135',
+        'accent-hover': '#b8e020',
+        'accent-tint': '#f7fee7',
         border: {
-          subtle: '#1e1e2e',
-          input: '#2a2a3a',
+          subtle: '#e8e8e8',
+          input: '#e8e8e8',
         },
         text: {
-          primary: '#ffffff',
-          body: '#c0c0d0',
-          muted: '#6a6a8a',
-          hint: '#3a3a4a',
+          primary: '#1a1a1a',
+          body: '#444444',
+          muted: '#888888',
+          hint: '#aaaaaa',
         },
-        success: '#4ade80',
-        warning: '#fbbf24',
-        danger: '#f87171',
+        success: '#16a34a',
+        warning: '#d97706',
+        danger: '#dc2626',
+        lime: {
+          accent: '#c8f135',
+          hover: '#b8e020',
+          light: '#f7fee7',
+        },
+        sidebar: '#111111',
+        surface: '#f5f5f0',
       },
       fontFamily: {
         sans: ['DM Sans', 'sans-serif'],
@@ -31,11 +39,16 @@ export default {
       },
       borderRadius: {
         chip: '8px',
-        card: '12px',
+        card: '16px',
         pill: '99px',
+        xl: '16px',
+        '2xl': '20px',
+      },
+      boxShadow: {
+        card: '0 2px 12px rgba(0,0,0,0.06)',
+        'card-hover': '0 4px 20px rgba(0,0,0,0.10)',
       },
     },
   },
   plugins: [],
 }
-

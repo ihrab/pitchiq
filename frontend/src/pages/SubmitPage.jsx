@@ -17,27 +17,19 @@ const BUSINESS_MODELS = [
   { value: 'freemium', label: 'Freemium', desc: 'Free tier with paid upgrades' },
 ]
 
-function Toggle({ label, checked, onChange, disabled, proLabel }) {
+function Toggle({ label, checked, onChange }) {
   return (
     <label className="flex items-center justify-between cursor-pointer select-none">
-      <div className="flex items-center gap-2">
-        <span className="text-sm text-text-body">{label}</span>
-        {proLabel && (
-          <span className="text-xs bg-accent-tint text-accent border border-accent/30 px-1.5 py-0.5 rounded-pill">Pro</span>
-        )}
-      </div>
+      <span className="text-sm text-[#444444]">{label}</span>
       <button
         type="button"
         role="switch"
         aria-checked={checked}
-        disabled={disabled}
-        onClick={() => !disabled && onChange(!checked)}
-        className={`w-10 h-5 rounded-full relative transition-colors ${
-          checked ? 'bg-accent' : 'bg-border-input'
-        } ${disabled ? 'opacity-40 cursor-not-allowed' : ''}`}
+        onClick={() => onChange(!checked)}
+        className={`w-10 h-5 rounded-full relative transition-colors ${checked ? 'bg-[#c8f135]' : 'bg-[#e8e8e8]'}`}
       >
         <span
-          className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-transform ${
+          className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${
             checked ? 'translate-x-5' : 'translate-x-0.5'
           }`}
         />
@@ -60,7 +52,6 @@ export default function SubmitPage() {
   const [loading, setLoading] = useState(false)
   const { user } = useAuth()
   const navigate = useNavigate()
-  const isPro = user?.plan === 'pro' || user?.plan === 'enterprise'
 
   const handleSubmit = async () => {
     setError(null)
@@ -80,9 +71,8 @@ export default function SubmitPage() {
     } catch (err) {
       const e = err.response?.data
       const status = err.response?.status
-      console.error('Submit failed:', status, e, err.message)
       if (e?.error === 'upgrade_required') {
-        setError(`This feature requires a Pro plan. Please upgrade.`)
+        setError('This feature requires a Pro plan. Please upgrade.')
       } else if (typeof e === 'string' && e.includes('<html')) {
         setError(`Server error (${status}). Check the Django console for the traceback.`)
       } else {
@@ -97,7 +87,7 @@ export default function SubmitPage() {
   const stepLabels = ['Describe', 'Context', 'Analyse']
 
   return (
-    <div className="flex min-h-screen bg-bg-primary">
+    <div className="flex min-h-screen bg-[#f5f5f0]">
       <Sidebar />
       <main className="flex-1 p-8 max-w-2xl">
         {/* Step indicator */}
@@ -108,15 +98,15 @@ export default function SubmitPage() {
             const done = num < step
             return (
               <div key={label} className="flex items-center gap-2">
-                <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-medium ${
-                  done ? 'bg-accent text-white'
-                  : active ? 'border-2 border-accent text-accent'
-                  : 'border border-border-input text-text-hint'
+                <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
+                  done ? 'bg-[#c8f135] text-[#111111]'
+                  : active ? 'bg-[#111111] text-white'
+                  : 'bg-white border border-[#e8e8e8] text-[#aaaaaa]'
                 }`}>
                   {done ? '✓' : num}
                 </div>
-                <span className={`text-sm ${active ? 'text-text-primary' : 'text-text-hint'}`}>{label}</span>
-                {i < stepLabels.length - 1 && <div className="w-8 h-px bg-border-subtle mx-1" />}
+                <span className={`text-sm font-medium ${active ? 'text-[#1a1a1a]' : 'text-[#aaaaaa]'}`}>{label}</span>
+                {i < stepLabels.length - 1 && <div className="w-8 h-px bg-[#e8e8e8] mx-1" />}
               </div>
             )
           })}
@@ -125,23 +115,23 @@ export default function SubmitPage() {
         {step === 1 && (
           <div className="space-y-6">
             <div>
-              <h1 className="font-serif text-3xl text-text-primary mb-1">Describe your idea</h1>
-              <p className="text-text-muted text-sm">Be specific — what problem does it solve and for whom?</p>
+              <h1 className="font-bold text-3xl text-[#1a1a1a] mb-1">Describe your idea</h1>
+              <p className="text-[#888888] text-sm italic">Be specific — what problem does it solve and for whom?</p>
             </div>
             <div>
-              <label className="block text-sm text-text-muted mb-1.5">Idea title</label>
+              <label className="block text-sm font-medium text-[#444444] mb-1.5">Idea title</label>
               <input
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="e.g. AI-powered legal contract reviewer for SMEs"
-                className="w-full bg-bg-card border border-border-input rounded-chip px-4 py-2.5 text-text-primary placeholder-text-hint text-sm focus:outline-none focus:border-accent transition-colors"
+                className="w-full bg-white border border-[#e8e8e8] rounded-[8px] px-4 py-2.5 text-[#1a1a1a] placeholder-[#aaaaaa] text-sm focus:outline-none focus:border-[#c8f135] transition-colors"
               />
             </div>
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <label className="text-sm text-text-muted">Pitch description</label>
-                <span className={`text-xs ${pitch.length > 580 ? 'text-warning' : 'text-text-hint'}`}>
+                <label className="text-sm font-medium text-[#444444]">Pitch description</label>
+                <span className={`text-xs ${pitch.length > 580 ? 'text-amber-600' : 'text-[#aaaaaa]'}`}>
                   {pitch.length}/600
                 </span>
               </div>
@@ -150,13 +140,13 @@ export default function SubmitPage() {
                 onChange={(e) => setPitch(e.target.value.slice(0, 600))}
                 rows={7}
                 placeholder="Describe your startup idea in detail. Include the problem, your solution, target customers, and what makes it unique."
-                className="w-full bg-bg-card border border-border-input rounded-chip px-4 py-3 text-text-primary placeholder-text-hint text-sm focus:outline-none focus:border-accent transition-colors resize-none"
+                className="w-full bg-white border border-[#e8e8e8] rounded-[8px] px-4 py-3 text-[#1a1a1a] placeholder-[#aaaaaa] text-sm focus:outline-none focus:border-[#c8f135] transition-colors resize-none"
               />
             </div>
             <button
               disabled={!title.trim() || pitch.trim().length < 20}
               onClick={() => setStep(2)}
-              className="bg-accent text-white px-6 py-2.5 rounded-chip text-sm font-medium hover:bg-accent/90 transition-colors disabled:opacity-40"
+              className="bg-[#c8f135] text-[#111111] px-6 py-2.5 rounded-[10px] text-sm font-bold hover:bg-[#b8e020] transition-colors disabled:opacity-40"
             >
               Next: Add context →
             </button>
@@ -166,22 +156,22 @@ export default function SubmitPage() {
         {step === 2 && (
           <div className="space-y-6">
             <div>
-              <h1 className="font-serif text-3xl text-text-primary mb-1">Add context</h1>
-              <p className="text-text-muted text-sm">Help the AI produce a more accurate analysis.</p>
+              <h1 className="font-bold text-3xl text-[#1a1a1a] mb-1">Add context</h1>
+              <p className="text-[#888888] text-sm italic">Help the AI produce a more accurate analysis.</p>
             </div>
 
             <div>
-              <label className="block text-sm text-text-muted mb-3">Sector</label>
+              <label className="block text-sm font-medium text-[#444444] mb-3">Sector</label>
               <div className="flex flex-wrap gap-2">
                 {SECTORS.map((s) => (
                   <button
                     key={s}
                     type="button"
                     onClick={() => setSector(s)}
-                    className={`px-3 py-1.5 rounded-chip text-sm border transition-colors ${
+                    className={`px-3 py-1.5 rounded-full text-sm border transition-all font-medium ${
                       sector === s
-                        ? 'bg-accent-tint border-accent text-accent'
-                        : 'border-border-input text-text-muted hover:border-text-muted hover:text-text-body'
+                        ? 'bg-[#c8f135] border-[#c8f135] text-[#111111]'
+                        : 'bg-white border-[#e8e8e8] text-[#666666] hover:border-[#c8f135]'
                     }`}
                   >
                     {s}
@@ -191,68 +181,51 @@ export default function SubmitPage() {
             </div>
 
             <div>
-              <label className="block text-sm text-text-muted mb-3">Business model</label>
+              <label className="block text-sm font-medium text-[#444444] mb-3">Business model</label>
               <div className="grid grid-cols-2 gap-3">
                 {BUSINESS_MODELS.map((m) => (
                   <button
                     key={m.value}
                     type="button"
                     onClick={() => setModel(m.value)}
-                    className={`text-left p-4 rounded-card border transition-colors ${
+                    className={`text-left p-4 rounded-[12px] border-2 transition-all ${
                       model === m.value
-                        ? 'bg-accent-tint border-accent'
-                        : 'bg-bg-card border-border-subtle hover:border-border-input'
+                        ? 'bg-white border-[#c8f135]'
+                        : 'bg-white border-[#e8e8e8] hover:border-[#c8f135]/50'
                     }`}
                   >
-                    <div className={`font-medium text-sm ${model === m.value ? 'text-accent' : 'text-text-primary'}`}>
-                      {m.label}
+                    <div className="flex items-center gap-2 mb-1">
+                      {model === m.value && (
+                        <span className="w-2 h-2 rounded-full bg-[#c8f135] flex-shrink-0" />
+                      )}
+                      <div className={`font-semibold text-sm ${model === m.value ? 'text-[#1a1a1a]' : 'text-[#444444]'}`}>
+                        {m.label}
+                      </div>
                     </div>
-                    <div className="text-text-muted text-xs mt-0.5">{m.desc}</div>
+                    <div className="text-[#888888] text-xs">{m.desc}</div>
                   </button>
                 ))}
               </div>
             </div>
 
-            <div className="bg-bg-card border border-border-subtle rounded-card p-5 space-y-4">
-              <Toggle
-                label="Include local competitors (UK-based)"
-                checked={localComp}
-                onChange={setLocalComp}
-                disabled={!isPro}
-                proLabel={!isPro}
-              />
-              <Toggle
-                label="Include global competitors"
-                checked={globalComp}
-                onChange={setGlobalComp}
-              />
-              <Toggle
-                label="Export as PDF report"
-                checked={pdfExport}
-                onChange={setPdfExport}
-                disabled={!isPro}
-                proLabel={!isPro}
-              />
-              <Toggle
-                label="Generate pitch deck"
-                checked={deckExport}
-                onChange={setDeckExport}
-                disabled={!isPro}
-                proLabel={!isPro}
-              />
+            <div className="bg-white border border-[#e8e8e8] rounded-[16px] p-5 space-y-4 shadow-[0_2px_12px_rgba(0,0,0,0.06)]">
+              <Toggle label="Include local competitors (UK-based)" checked={localComp} onChange={setLocalComp} />
+              <Toggle label="Include global competitors" checked={globalComp} onChange={setGlobalComp} />
+              <Toggle label="Export as PDF report" checked={pdfExport} onChange={setPdfExport} />
+              <Toggle label="Generate pitch deck" checked={deckExport} onChange={setDeckExport} />
             </div>
 
             <div className="flex gap-3">
               <button
                 onClick={() => setStep(1)}
-                className="px-6 py-2.5 rounded-chip text-sm text-text-muted border border-border-input hover:text-text-primary transition-colors"
+                className="px-6 py-2.5 rounded-[10px] text-sm font-medium text-[#888888] bg-white border border-[#e8e8e8] hover:text-[#444444] transition-colors"
               >
                 ← Back
               </button>
               <button
                 disabled={!sector || !model}
                 onClick={() => setStep(3)}
-                className="bg-accent text-white px-6 py-2.5 rounded-chip text-sm font-medium hover:bg-accent/90 transition-colors disabled:opacity-40"
+                className="bg-[#c8f135] text-[#111111] px-6 py-2.5 rounded-[10px] text-sm font-bold hover:bg-[#b8e020] transition-colors disabled:opacity-40"
               >
                 Review & submit →
               </button>
@@ -263,11 +236,11 @@ export default function SubmitPage() {
         {step === 3 && (
           <div className="space-y-6">
             <div>
-              <h1 className="font-serif text-3xl text-text-primary mb-1">Ready to analyse</h1>
-              <p className="text-text-muted text-sm">Review your submission before running the analysis.</p>
+              <h1 className="font-bold text-3xl text-[#1a1a1a] mb-1">Ready to analyse</h1>
+              <p className="text-[#888888] text-sm italic">Review your submission before running the analysis.</p>
             </div>
 
-            <div className="bg-bg-card border border-border-subtle rounded-card p-5 space-y-3">
+            <div className="bg-white border border-[#e8e8e8] rounded-[16px] p-5 space-y-3 shadow-[0_2px_12px_rgba(0,0,0,0.06)]">
               <Row label="Title" value={title} />
               <Row label="Sector" value={sector} />
               <Row label="Business model" value={model} />
@@ -275,14 +248,14 @@ export default function SubmitPage() {
               <Row label="Global competitors" value={globalComp ? 'Yes' : 'No'} />
               <Row label="PDF export" value={pdfExport ? 'Yes' : 'No'} />
               <Row label="Pitch deck" value={deckExport ? 'Yes' : 'No'} />
-              <div className="pt-2 border-t border-border-subtle">
-                <div className="text-xs text-text-muted mb-1.5">Pitch description</div>
-                <p className="text-sm text-text-body leading-relaxed">{pitch}</p>
+              <div className="pt-2 border-t border-[#e8e8e8]">
+                <div className="text-xs text-[#888888] mb-1.5">Pitch description</div>
+                <p className="text-sm text-[#444444] leading-relaxed">{pitch}</p>
               </div>
             </div>
 
             {error && (
-              <div className="bg-danger/10 border border-danger/30 rounded-chip px-4 py-3 text-danger text-sm">
+              <div className="bg-red-50 border border-red-200 rounded-[10px] px-4 py-3 text-red-600 text-sm">
                 {error}
               </div>
             )}
@@ -290,18 +263,18 @@ export default function SubmitPage() {
             <div className="flex gap-3">
               <button
                 onClick={() => setStep(2)}
-                className="px-6 py-2.5 rounded-chip text-sm text-text-muted border border-border-input hover:text-text-primary transition-colors"
+                className="px-6 py-2.5 rounded-[10px] text-sm font-medium text-[#888888] bg-white border border-[#e8e8e8] hover:text-[#444444] transition-colors"
               >
                 ← Back
               </button>
               <button
                 onClick={handleSubmit}
                 disabled={loading}
-                className="bg-accent text-white px-8 py-2.5 rounded-chip text-sm font-medium hover:bg-accent/90 transition-colors disabled:opacity-50 flex items-center gap-2"
+                className="bg-[#c8f135] text-[#111111] px-8 py-2.5 rounded-[10px] text-sm font-bold hover:bg-[#b8e020] transition-colors disabled:opacity-50 flex items-center gap-2"
               >
                 {loading ? (
                   <>
-                    <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    <div className="w-3.5 h-3.5 border-2 border-[#111111]/30 border-t-[#111111] rounded-full animate-spin" />
                     Starting analysis…
                   </>
                 ) : (
@@ -319,8 +292,8 @@ export default function SubmitPage() {
 function Row({ label, value }) {
   return (
     <div className="flex items-center justify-between text-sm">
-      <span className="text-text-muted">{label}</span>
-      <span className="text-text-primary">{value}</span>
+      <span className="text-[#888888]">{label}</span>
+      <span className="text-[#1a1a1a] font-medium">{value}</span>
     </div>
   )
 }

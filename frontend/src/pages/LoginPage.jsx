@@ -38,50 +38,57 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex bg-bg-primary">
-      {/* Left panel */}
-      <div className="hidden lg:flex w-[45%] flex-col justify-between p-12 bg-bg-sidebar border-r border-border-subtle">
+    <div className="min-h-screen flex">
+      {/* Left panel — dark */}
+      <div className="hidden lg:flex w-[45%] flex-col justify-between p-12 bg-[#111111]">
         <div>
-          <span className="font-serif text-2xl text-text-primary">PitchIQ</span>
+          <span className="text-white font-bold text-2xl tracking-tight">Pitch IQ</span>
         </div>
-        <div className="space-y-8">
+        <div className="space-y-10">
           <div>
-            <h1 className="font-serif text-4xl text-text-primary leading-tight mb-4">
+            <h1 className="text-white font-bold text-4xl leading-tight mb-4">
               Validate your startup idea with AI
             </h1>
-            <p className="text-text-body text-lg leading-relaxed">
+            <p className="text-[#aaaaaa] text-lg leading-relaxed">
               Get a full viability analysis, competitor map, and investor-ready pitch deck in under 60 seconds.
             </p>
           </div>
-          <div className="flex gap-8">
+          <div className="flex gap-10">
             {STATS.map((s) => (
               <div key={s.label}>
-                <div className="font-serif text-3xl text-accent">{s.value}</div>
-                <div className="text-text-muted text-sm mt-1">{s.label}</div>
+                <div className="text-[#c8f135] font-bold text-3xl">{s.value}</div>
+                <div className="text-[#888888] text-sm mt-1">{s.label}</div>
               </div>
             ))}
           </div>
         </div>
-        <p className="text-text-hint text-sm">© 2026 PitchIQ</p>
+        <p className="text-[#555555] text-sm">© 2026 Pitch IQ</p>
       </div>
 
-      {/* Right panel */}
-      <div className="flex-1 flex items-center justify-center p-8">
+      {/* Right panel — white */}
+      <div className="flex-1 flex items-center justify-center p-8 bg-white">
         <div className="w-full max-w-md">
           <div className="lg:hidden mb-8">
-            <span className="font-serif text-2xl text-text-primary">PitchIQ</span>
+            <span className="text-[#1a1a1a] font-bold text-2xl">Pitch IQ</span>
           </div>
 
-          {/* Tabs */}
-          <div className="flex border border-border-input rounded-chip mb-8 overflow-hidden">
+          <h2 className="text-[#1a1a1a] font-bold text-2xl mb-2">
+            {tab === 'login' ? 'Welcome back' : 'Create your account'}
+          </h2>
+          <p className="text-[#888888] text-sm mb-8">
+            {tab === 'login' ? 'Sign in to continue to Pitch IQ' : 'Start validating ideas for free'}
+          </p>
+
+          {/* Tab toggle */}
+          <div className="flex bg-[#f5f5f0] rounded-[10px] p-1 mb-8">
             {['login', 'register'].map((t) => (
               <button
                 key={t}
                 onClick={() => { setTab(t); setError(null) }}
-                className={`flex-1 py-2.5 text-sm font-medium transition-colors ${
+                className={`flex-1 py-2 text-sm font-medium rounded-[8px] transition-all ${
                   tab === t
-                    ? 'bg-accent text-white'
-                    : 'text-text-muted hover:text-text-primary'
+                    ? 'bg-[#c8f135] text-[#111111] shadow-sm'
+                    : 'text-[#888888] hover:text-[#444444]'
                 }`}
               >
                 {t === 'login' ? 'Sign in' : 'Create account'}
@@ -92,41 +99,41 @@ export default function LoginPage() {
           <form onSubmit={handleSubmit} className="space-y-4">
             {tab === 'register' && (
               <div>
-                <label className="block text-sm text-text-muted mb-1.5">Name</label>
+                <label className="block text-sm font-medium text-[#444444] mb-1.5">Name</label>
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Your name"
-                  className="w-full bg-bg-card border border-border-input rounded-chip px-4 py-2.5 text-text-primary placeholder-text-hint text-sm focus:outline-none focus:border-accent transition-colors"
+                  className="w-full bg-white border border-[#e8e8e8] rounded-[8px] px-4 py-2.5 text-[#1a1a1a] placeholder-[#aaaaaa] text-sm focus:outline-none focus:border-[#c8f135] transition-colors"
                 />
               </div>
             )}
             <div>
-              <label className="block text-sm text-text-muted mb-1.5">Email</label>
+              <label className="block text-sm font-medium text-[#444444] mb-1.5">Email</label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
                 required
-                className="w-full bg-bg-card border border-border-input rounded-chip px-4 py-2.5 text-text-primary placeholder-text-hint text-sm focus:outline-none focus:border-accent transition-colors"
+                className="w-full bg-white border border-[#e8e8e8] rounded-[8px] px-4 py-2.5 text-[#1a1a1a] placeholder-[#aaaaaa] text-sm focus:outline-none focus:border-[#c8f135] transition-colors"
               />
             </div>
             <div>
-              <label className="block text-sm text-text-muted mb-1.5">Password</label>
+              <label className="block text-sm font-medium text-[#444444] mb-1.5">Password</label>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="At least 8 characters"
                 required
-                className="w-full bg-bg-card border border-border-input rounded-chip px-4 py-2.5 text-text-primary placeholder-text-hint text-sm focus:outline-none focus:border-accent transition-colors"
+                className="w-full bg-white border border-[#e8e8e8] rounded-[8px] px-4 py-2.5 text-[#1a1a1a] placeholder-[#aaaaaa] text-sm focus:outline-none focus:border-[#c8f135] transition-colors"
               />
             </div>
 
             {error && (
-              <div className="bg-danger/10 border border-danger/30 rounded-chip px-4 py-3 text-danger text-sm">
+              <div className="bg-red-50 border border-red-200 rounded-[8px] px-4 py-3 text-red-600 text-sm">
                 {error}
               </div>
             )}
@@ -134,20 +141,20 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-accent text-white rounded-chip py-2.5 text-sm font-medium hover:bg-accent/90 transition-colors disabled:opacity-50"
+              className="w-full bg-[#c8f135] text-[#111111] rounded-[10px] py-3 text-sm font-bold hover:bg-[#b8e020] transition-colors disabled:opacity-50"
             >
               {loading ? 'Please wait…' : tab === 'login' ? 'Sign in' : 'Create account'}
             </button>
           </form>
 
-          <div className="mt-4 flex items-center gap-3">
-            <div className="flex-1 h-px bg-border-subtle" />
-            <span className="text-text-hint text-xs">or</span>
-            <div className="flex-1 h-px bg-border-subtle" />
+          <div className="mt-6 flex items-center gap-3">
+            <div className="flex-1 h-px bg-[#e8e8e8]" />
+            <span className="text-[#aaaaaa] text-xs">or</span>
+            <div className="flex-1 h-px bg-[#e8e8e8]" />
           </div>
 
           <button
-            className="mt-4 w-full border border-border-input rounded-chip py-2.5 text-sm text-text-muted hover:text-text-primary hover:border-text-muted transition-colors flex items-center justify-center gap-2"
+            className="mt-4 w-full border border-[#e8e8e8] rounded-[10px] py-2.5 text-sm text-[#888888] hover:text-[#444444] hover:border-[#cccccc] transition-colors flex items-center justify-center gap-2"
             onClick={() => alert('Google OAuth requires a configured Google Client ID.')}
           >
             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">

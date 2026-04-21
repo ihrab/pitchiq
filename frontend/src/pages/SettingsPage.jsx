@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom'
 import { updateMe, deleteMe } from '../api/auth'
 import { useAuth } from '../context/AuthContext'
 import Sidebar from '../components/Sidebar'
-import PlanBadge from '../components/PlanBadge'
 
 export default function SettingsPage() {
   const { user, refreshUser, logout } = useAuth()
@@ -16,6 +15,8 @@ export default function SettingsPage() {
   const [saveMsg, setSaveMsg] = useState(null)
   const [saveError, setSaveError] = useState(null)
   const [deleteConfirm, setDeleteConfirm] = useState(false)
+
+  const inputClass = 'w-full bg-white border border-[#e8e8e8] rounded-[8px] px-4 py-2.5 text-[#1a1a1a] text-sm focus:outline-none focus:border-[#c8f135] transition-colors placeholder-[#aaaaaa]'
 
   const handleSave = async (e) => {
     e.preventDefault()
@@ -52,60 +53,51 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="flex min-h-screen bg-bg-primary">
+    <div className="flex min-h-screen bg-[#f5f5f0]">
       <Sidebar />
       <main className="flex-1 p-8 max-w-2xl">
-        <h1 className="font-serif text-3xl text-text-primary mb-8">Settings</h1>
+        <h1 className="font-bold text-3xl text-[#1a1a1a] mb-8">Settings</h1>
 
         {/* Profile */}
-        <section className="bg-bg-card border border-border-subtle rounded-card p-6 mb-6">
-          <h2 className="text-text-primary font-medium mb-5">Profile</h2>
+        <section className="bg-white border border-[#e8e8e8] rounded-[16px] p-6 mb-6 shadow-[0_2px_12px_rgba(0,0,0,0.06)]">
+          <h2 className="text-[#1a1a1a] font-semibold text-lg mb-5">Profile</h2>
           <form onSubmit={handleSave} className="space-y-4">
             <div>
-              <label className="block text-sm text-text-muted mb-1.5">Name</label>
-              <input
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="w-full bg-bg-primary border border-border-input rounded-chip px-4 py-2.5 text-text-primary text-sm focus:outline-none focus:border-accent transition-colors"
-              />
+              <label className="block text-sm font-medium text-[#444444] mb-1.5">Name</label>
+              <input value={name} onChange={(e) => setName(e.target.value)} className={inputClass} />
             </div>
             <div>
-              <label className="block text-sm text-text-muted mb-1.5">Email</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-bg-primary border border-border-input rounded-chip px-4 py-2.5 text-text-primary text-sm focus:outline-none focus:border-accent transition-colors"
-              />
+              <label className="block text-sm font-medium text-[#444444] mb-1.5">Email</label>
+              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className={inputClass} />
             </div>
 
-            <div className="pt-2 border-t border-border-subtle">
-              <h3 className="text-text-muted text-sm font-medium mb-3">Change password</h3>
+            <div className="pt-2 border-t border-[#e8e8e8]">
+              <h3 className="text-[#888888] text-sm font-medium mb-3">Change password</h3>
               <div className="space-y-3">
                 <input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="New password (leave blank to keep current)"
-                  className="w-full bg-bg-primary border border-border-input rounded-chip px-4 py-2.5 text-text-primary placeholder-text-hint text-sm focus:outline-none focus:border-accent transition-colors"
+                  className={inputClass}
                 />
                 <input
                   type="password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="Confirm new password"
-                  className="w-full bg-bg-primary border border-border-input rounded-chip px-4 py-2.5 text-text-primary placeholder-text-hint text-sm focus:outline-none focus:border-accent transition-colors"
+                  className={inputClass}
                 />
               </div>
             </div>
 
             {saveMsg && (
-              <div className="bg-green-950/40 border border-green-800/30 rounded-chip px-4 py-2 text-success text-sm">
+              <div className="bg-[#f7fee7] border border-[#c8f135] rounded-[8px] px-4 py-2 text-[#166534] text-sm">
                 {saveMsg}
               </div>
             )}
             {saveError && (
-              <div className="bg-danger/10 border border-danger/30 rounded-chip px-4 py-2 text-danger text-sm">
+              <div className="bg-red-50 border border-red-200 rounded-[8px] px-4 py-2 text-red-600 text-sm">
                 {saveError}
               </div>
             )}
@@ -113,7 +105,7 @@ export default function SettingsPage() {
             <button
               type="submit"
               disabled={saving}
-              className="bg-accent text-white px-6 py-2.5 rounded-chip text-sm font-medium hover:bg-accent/90 transition-colors disabled:opacity-50"
+              className="bg-[#c8f135] text-[#111111] px-6 py-2.5 rounded-[10px] text-sm font-bold hover:bg-[#b8e020] transition-colors disabled:opacity-50"
             >
               {saving ? 'Saving…' : 'Save changes'}
             </button>
@@ -121,62 +113,50 @@ export default function SettingsPage() {
         </section>
 
         {/* Subscription */}
-        <section className="bg-bg-card border border-border-subtle rounded-card p-6 mb-6">
-          <h2 className="text-text-primary font-medium mb-4">Subscription</h2>
+        <section className="bg-white border border-[#e8e8e8] rounded-[16px] p-6 mb-6 shadow-[0_2px_12px_rgba(0,0,0,0.06)]">
+          <h2 className="text-[#1a1a1a] font-semibold text-lg mb-4">Subscription</h2>
           <div className="flex items-center justify-between">
             <div>
-              <div className="text-sm text-text-muted mb-1.5">Current plan</div>
-              <PlanBadge plan={user?.plan || 'free'} />
+              <div className="text-sm text-[#888888] mb-2">Current plan</div>
+              <span className="bg-[#c8f135] text-[#111111] text-xs font-bold px-3 py-1 rounded-full capitalize">
+                {user?.plan || 'free'}
+              </span>
             </div>
-            {user?.plan === 'free' ? (
-              <button
-                onClick={() => navigate('/pricing')}
-                className="border border-accent text-accent px-4 py-2 rounded-chip text-sm hover:bg-accent-tint transition-colors"
-              >
-                Upgrade to Pro
-              </button>
-            ) : (
-              <button
-                onClick={() => alert('Stripe customer portal requires a live Stripe key.')}
-                className="border border-border-input text-text-muted px-4 py-2 rounded-chip text-sm hover:text-text-primary transition-colors"
-              >
-                Manage subscription
-              </button>
-            )}
+            <button
+              onClick={() => alert('Stripe customer portal requires a live Stripe key.')}
+              className="border border-[#e8e8e8] text-[#888888] px-4 py-2 rounded-[10px] text-sm hover:text-[#444444] hover:border-[#cccccc] transition-colors"
+            >
+              Manage subscription
+            </button>
           </div>
-          {user?.plan === 'free' && (
-            <p className="text-text-hint text-xs mt-3">
-              {user.analyses_this_month}/3 analyses used this month. Resets on the 1st.
-            </p>
-          )}
         </section>
 
         {/* Danger zone */}
-        <section className="bg-bg-card border border-danger/20 rounded-card p-6">
-          <h2 className="text-danger font-medium mb-4">Danger zone</h2>
-          <p className="text-text-muted text-sm mb-4">
+        <section className="bg-white border border-red-200 rounded-[16px] p-6 shadow-[0_2px_12px_rgba(0,0,0,0.06)]">
+          <h2 className="text-red-600 font-semibold text-lg mb-4">Danger zone</h2>
+          <p className="text-[#888888] text-sm mb-4">
             Permanently delete your account and all associated data. This cannot be undone.
           </p>
           {!deleteConfirm ? (
             <button
               onClick={() => setDeleteConfirm(true)}
-              className="border border-danger/40 text-danger px-4 py-2 rounded-chip text-sm hover:bg-danger/10 transition-colors"
+              className="border border-red-200 text-red-600 px-4 py-2 rounded-[10px] text-sm hover:bg-red-50 transition-colors"
             >
               Delete account
             </button>
           ) : (
             <div className="space-y-3">
-              <p className="text-danger text-sm font-medium">Are you absolutely sure?</p>
+              <p className="text-red-600 text-sm font-medium">Are you absolutely sure?</p>
               <div className="flex gap-3">
                 <button
                   onClick={handleDelete}
-                  className="bg-danger text-white px-4 py-2 rounded-chip text-sm font-medium hover:bg-danger/80 transition-colors"
+                  className="bg-red-600 text-white px-4 py-2 rounded-[10px] text-sm font-medium hover:bg-red-700 transition-colors"
                 >
                   Yes, delete my account
                 </button>
                 <button
                   onClick={() => setDeleteConfirm(false)}
-                  className="border border-border-input text-text-muted px-4 py-2 rounded-chip text-sm hover:text-text-primary transition-colors"
+                  className="border border-[#e8e8e8] text-[#888888] px-4 py-2 rounded-[10px] text-sm hover:text-[#444444] transition-colors"
                 >
                   Cancel
                 </button>

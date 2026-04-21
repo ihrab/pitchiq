@@ -1,12 +1,6 @@
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
-const PLAN_COLORS = {
-  free: 'bg-text-hint text-text-muted',
-  pro: 'bg-accent-tint text-accent border border-accent',
-  enterprise: 'bg-yellow-900/30 text-warning border border-warning',
-}
-
 export default function Sidebar() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
@@ -17,21 +11,28 @@ export default function Sidebar() {
   }
 
   const navClass = ({ isActive }) =>
-    `flex items-center gap-3 px-4 py-2.5 rounded-chip text-sm transition-colors ${
+    `flex items-center gap-3 px-4 py-2.5 rounded-[10px] text-sm font-medium transition-all ${
       isActive
-        ? 'bg-accent-tint text-accent border border-accent/30'
-        : 'text-text-muted hover:text-text-primary hover:bg-border-subtle'
+        ? 'bg-[#c8f135] text-[#111111]'
+        : 'text-[#aaaaaa] hover:text-white hover:bg-white/10'
     }`
 
+  const initials = (user?.name || user?.email || 'U')
+    .split(' ')
+    .map((w) => w[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase()
+
   return (
-    <aside className="w-56 min-h-screen bg-bg-sidebar border-r border-border-subtle flex flex-col flex-shrink-0">
-      <div className="px-5 py-5 border-b border-border-subtle">
-        <NavLink to="/dashboard" className="font-serif text-xl text-text-primary tracking-tight hover:text-accent transition-colors">
-          PitchIQ
+    <aside className="w-60 min-h-screen bg-[#111111] flex flex-col flex-shrink-0">
+      <div className="px-6 py-6">
+        <NavLink to="/dashboard" className="text-white font-bold text-xl tracking-tight hover:text-[#c8f135] transition-colors">
+          Pitch IQ
         </NavLink>
       </div>
 
-      <nav className="flex-1 px-3 py-4 space-y-1">
+      <nav className="flex-1 px-3 py-2 space-y-1">
         <NavLink to="/submit" className={navClass}>
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -59,20 +60,29 @@ export default function Sidebar() {
         </NavLink>
       </nav>
 
-      <div className="px-4 py-4 border-t border-border-subtle">
+      <div className="px-4 py-5 border-t border-white/10">
         {user && (
-          <div className="space-y-2">
-            <div className="text-sm text-text-primary truncate">{user.name || user.email}</div>
-            <div className="text-xs text-text-muted truncate">{user.email}</div>
-            <span className={`inline-block text-xs px-2 py-0.5 rounded-pill font-medium ${PLAN_COLORS[user.plan] || PLAN_COLORS.free}`}>
-              {user.plan}
-            </span>
-            <button
-              onClick={handleLogout}
-              className="block w-full text-left text-xs text-text-muted hover:text-danger transition-colors mt-2"
-            >
-              Sign out
-            </button>
+          <div className="space-y-3">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-full bg-[#c8f135] flex items-center justify-center text-[#111111] font-bold text-sm flex-shrink-0">
+                {initials}
+              </div>
+              <div className="min-w-0">
+                <div className="text-white text-sm font-medium truncate">{user.name || user.email}</div>
+                <div className="text-[#888888] text-xs truncate">{user.email}</div>
+              </div>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-xs bg-[#c8f135] text-[#111111] font-semibold px-2.5 py-0.5 rounded-full">
+                {user.plan}
+              </span>
+              <button
+                onClick={handleLogout}
+                className="text-xs text-[#888888] hover:text-white transition-colors"
+              >
+                Sign out
+              </button>
+            </div>
           </div>
         )}
       </div>

@@ -12,10 +12,10 @@ import PersonaCard from '../components/PersonaCard'
 import QABox from '../components/QABox'
 
 const VERDICT_STYLES = {
-  Strong: 'bg-green-950/40 text-success border-green-800/30',
-  Promising: 'bg-accent-tint text-accent border-accent/30',
-  'Needs work': 'bg-yellow-950/40 text-warning border-yellow-800/30',
-  Risky: 'bg-red-950/40 text-danger border-red-800/30',
+  Strong: 'bg-green-100 text-green-700',
+  Promising: 'bg-[#f7fee7] text-[#166534]',
+  'Needs work': 'bg-amber-100 text-amber-700',
+  Risky: 'bg-red-100 text-red-600',
 }
 
 export default function AnalysisPage() {
@@ -28,7 +28,6 @@ export default function AnalysisPage() {
 
   const { status } = useAnalysisPolling(id, analysis?.status || 'pending')
 
-  // Load full analysis once complete
   useEffect(() => {
     if (status === 'complete') {
       getAnalysis(id)
@@ -39,7 +38,6 @@ export default function AnalysisPage() {
     }
   }, [status, id])
 
-  // Load chat messages
   useEffect(() => {
     if (status === 'complete') {
       getChatMessages(id)
@@ -66,7 +64,7 @@ export default function AnalysisPage() {
       a.download = 'pitchiq-report.pdf'
       a.click()
       window.URL.revokeObjectURL(url)
-    } catch (err) {
+    } catch {
       alert('PDF export failed. Please try again.')
     }
   }
@@ -85,19 +83,19 @@ export default function AnalysisPage() {
       a.download = 'pitchiq-deck.pptx'
       a.click()
       window.URL.revokeObjectURL(url)
-    } catch (err) {
+    } catch {
       alert('Pitch deck export failed. Please try again.')
     }
   }
 
   if (loadError) {
     return (
-      <div className="flex min-h-screen bg-bg-primary">
+      <div className="flex min-h-screen bg-[#f5f5f0]">
         <Sidebar />
         <main className="flex-1 flex items-center justify-center">
           <div className="text-center">
-            <p className="text-danger mb-4">{loadError}</p>
-            <button onClick={() => navigate('/submit')} className="text-accent text-sm hover:underline">
+            <p className="text-red-600 mb-4">{loadError}</p>
+            <button onClick={() => navigate('/submit')} className="text-[#111111] text-sm hover:underline font-medium">
               Try again →
             </button>
           </div>
@@ -108,7 +106,7 @@ export default function AnalysisPage() {
 
   if (status === 'pending' || status === 'processing' || !analysis) {
     return (
-      <div className="flex min-h-screen bg-bg-primary">
+      <div className="flex min-h-screen bg-[#f5f5f0]">
         <Sidebar />
         <main className="flex-1">
           <LoadingScreen status={status} />
@@ -123,21 +121,21 @@ export default function AnalysisPage() {
   const revenueScore = analysis.scores?.find(s => s.dimension === 'revenue_potential')
 
   return (
-    <div className="flex min-h-screen bg-bg-primary">
+    <div className="flex min-h-screen bg-[#f5f5f0]">
       <Sidebar />
       <main className="flex-1 p-8 space-y-6 overflow-y-auto">
         {/* Top bar */}
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <h1 className="font-serif text-3xl text-text-primary">{idea?.title}</h1>
-            <div className="flex flex-wrap items-center gap-2 mt-2 text-xs text-text-muted">
+            <h1 className="font-bold text-3xl text-[#1a1a1a]">{idea?.title}</h1>
+            <div className="flex flex-wrap items-center gap-2 mt-2 text-xs text-[#888888]">
               {analysis.completed_at && (
                 <span>{new Date(analysis.completed_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
               )}
-              {idea?.sector && <span className="bg-border-subtle px-2 py-0.5 rounded-pill">{idea.sector}</span>}
-              {idea?.business_model && <span className="bg-border-subtle px-2 py-0.5 rounded-pill">{idea.business_model}</span>}
+              {idea?.sector && <span className="bg-[#f5f5f0] border border-[#e8e8e8] px-2 py-0.5 rounded-full text-[#888888]">{idea.sector}</span>}
+              {idea?.business_model && <span className="bg-[#f5f5f0] border border-[#e8e8e8] px-2 py-0.5 rounded-full text-[#888888]">{idea.business_model}</span>}
               {analysis.verdict && (
-                <span className={`px-2.5 py-0.5 rounded-pill border ${VERDICT_STYLES[analysis.verdict] || ''}`}>
+                <span className={`px-2.5 py-0.5 rounded-full font-medium ${VERDICT_STYLES[analysis.verdict] || 'bg-gray-100 text-gray-600'}`}>
                   {analysis.verdict}
                 </span>
               )}
@@ -146,7 +144,7 @@ export default function AnalysisPage() {
           <div className="flex gap-2">
             <button
               onClick={handleExportPDF}
-              className="px-4 py-2 rounded-chip text-sm border border-border-input text-text-muted hover:text-text-primary hover:border-text-muted transition-colors flex items-center gap-1.5"
+              className="px-4 py-2 rounded-[10px] text-sm border border-[#e8e8e8] bg-white text-[#444444] hover:border-[#c8f135] hover:text-[#1a1a1a] transition-all flex items-center gap-1.5 shadow-sm"
             >
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -155,7 +153,7 @@ export default function AnalysisPage() {
             </button>
             <button
               onClick={handleExportPPTX}
-              className="px-4 py-2 rounded-chip text-sm border border-border-input text-text-muted hover:text-text-primary hover:border-text-muted transition-colors flex items-center gap-1.5"
+              className="px-4 py-2 rounded-[10px] text-sm border border-[#e8e8e8] bg-white text-[#444444] hover:border-[#c8f135] hover:text-[#1a1a1a] transition-all flex items-center gap-1.5 shadow-sm"
             >
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
@@ -165,18 +163,18 @@ export default function AnalysisPage() {
           </div>
         </div>
 
-        {/* Metric row */}
+        {/* Metric cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <MetricCard label="Overall score" value={`${score?.toFixed(1)}/10`} accent />
           <MetricCard label="Market size" value={`${analysis.scores?.find(s => s.dimension === 'market_size')?.score?.toFixed(1) || '—'}/10`} />
-          <MetricCard label="Biggest risk" value={biggestRisk?.score ? `${biggestRisk.score.toFixed(1)}/10` : '—'} />
+          <MetricCard label="Execution risk" value={biggestRisk?.score ? `${biggestRisk.score.toFixed(1)}/10` : '—'} />
           <MetricCard label="Revenue potential" value={revenueScore?.score ? `${revenueScore.score.toFixed(1)}/10` : '—'} />
         </div>
 
         {/* Scores + SWOT */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <section className="bg-bg-card border border-border-subtle rounded-card p-6">
-            <h2 className="text-text-primary font-medium mb-5">Viability breakdown</h2>
+          <section className="bg-white border border-[#e8e8e8] rounded-[16px] p-6 shadow-[0_2px_12px_rgba(0,0,0,0.06)]">
+            <h2 className="text-[#1a1a1a] font-semibold text-lg mb-5">Viability breakdown</h2>
             <div className="space-y-5">
               {(analysis.scores || []).map((s) => (
                 <ScoreBar key={s.dimension} {...s} />
@@ -184,21 +182,21 @@ export default function AnalysisPage() {
             </div>
           </section>
 
-          <section className="bg-bg-card border border-border-subtle rounded-card p-6">
-            <h2 className="text-text-primary font-medium mb-5">SWOT analysis</h2>
+          <section className="bg-white border border-[#e8e8e8] rounded-[16px] p-6 shadow-[0_2px_12px_rgba(0,0,0,0.06)]">
+            <h2 className="text-[#1a1a1a] font-semibold text-lg mb-5">SWOT analysis</h2>
             <SwotGrid swot={analysis.swot} />
           </section>
         </div>
 
         {/* Competitors + Personas */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <section className="bg-bg-card border border-border-subtle rounded-card p-6">
-            <h2 className="text-text-primary font-medium mb-5">Competitor landscape</h2>
+          <section className="bg-white border border-[#e8e8e8] rounded-[16px] p-6 shadow-[0_2px_12px_rgba(0,0,0,0.06)]">
+            <h2 className="text-[#1a1a1a] font-semibold text-lg mb-5">Competitor landscape</h2>
             <CompetitorTable competitors={analysis.competitors} />
           </section>
 
-          <section className="bg-bg-card border border-border-subtle rounded-card p-6">
-            <h2 className="text-text-primary font-medium mb-5">Target personas</h2>
+          <section className="bg-white border border-[#e8e8e8] rounded-[16px] p-6 shadow-[0_2px_12px_rgba(0,0,0,0.06)]">
+            <h2 className="text-[#1a1a1a] font-semibold text-lg mb-5">Target personas</h2>
             <div className="space-y-4">
               {(analysis.personas || []).map((p, i) => (
                 <PersonaCard key={i} persona={p} />
@@ -210,15 +208,15 @@ export default function AnalysisPage() {
         {/* Pivot suggestions */}
         {analysis.pivot_suggestions?.length > 0 && (
           <section>
-            <h2 className="text-text-primary font-medium mb-4">Pivot suggestions</h2>
+            <h2 className="text-[#1a1a1a] font-semibold text-lg mb-4">Pivot suggestions</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {analysis.pivot_suggestions.map((s, i) => (
-                <div key={i} className="bg-bg-card border border-border-subtle rounded-card p-5">
+                <div key={i} className="bg-white border-l-4 border-[#c8f135] border border-[#e8e8e8] rounded-[16px] p-5 shadow-[0_2px_12px_rgba(0,0,0,0.06)]">
                   <div className="flex items-start gap-3">
-                    <span className="w-6 h-6 rounded-full bg-accent-tint border border-accent/30 flex items-center justify-center text-accent text-xs font-medium flex-shrink-0">
+                    <span className="w-6 h-6 rounded-full bg-[#111111] flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
                       {i + 1}
                     </span>
-                    <p className="text-text-body text-sm leading-relaxed">{s}</p>
+                    <p className="text-[#444444] text-sm leading-relaxed">{s}</p>
                   </div>
                 </div>
               ))}
@@ -239,9 +237,9 @@ export default function AnalysisPage() {
 
 function MetricCard({ label, value, accent }) {
   return (
-    <div className={`bg-bg-card border rounded-card p-4 ${accent ? 'border-accent/30 bg-accent-tint/30' : 'border-border-subtle'}`}>
-      <div className="text-text-muted text-xs mb-1">{label}</div>
-      <div className={`font-serif text-2xl ${accent ? 'text-accent' : 'text-text-primary'}`}>{value}</div>
+    <div className={`bg-white rounded-[16px] p-4 shadow-[0_2px_12px_rgba(0,0,0,0.06)] border-l-4 ${accent ? 'border-[#c8f135] border border-[#e8e8e8]' : 'border-[#e8e8e8] border'}`}>
+      <div className="text-[#888888] text-xs mb-1">{label}</div>
+      <div className={`font-bold text-2xl ${accent ? 'text-[#1a1a1a]' : 'text-[#1a1a1a]'}`}>{value}</div>
     </div>
   )
 }
